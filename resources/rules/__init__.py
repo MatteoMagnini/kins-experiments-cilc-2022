@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable
 
 PATH = Path(__file__).parents[0]
 ALPHABET = ('A', 'C', 'G', 'T')
@@ -17,14 +17,29 @@ PLUS_SYMBOL = ' + '
 IMPLICATION_SYMBOL = ' ← '
 
 
-def get_datalog_rules(rules: Iterable[str], indices: List[int] = list(range(-30, 0)) + list(range(1, 31))) -> Iterable[str]:
+def get_rules(filename: str) -> list[str]:
+    rules = []
+    with open(str(PATH / filename) + '.txt') as file:
+        for raw in file:
+            raw = re.sub('\n', '', raw)
+            if len(raw) > 0:
+                rules.append(raw)
+    return rules
+
+
+def get_datalog_rules(rules: Iterable[str], labels: set[str] = ('ei', 'ie')) -> Iterable[str]:
     results = []
 
     for rule in rules:
         rule = re.sub(r' |\.', '', rule)
         name, _, rest = re.split(RULE_DEFINITION_SYMBOLS_REGEX, rule)
-        name = re.sub('-', '_', name)
-        lhs = name + '(' + ','.join(VARIABLE_BASE_NAME + ('_' if i < 0 else '') + str(abs(i)) for i in indices) + ')'
+        name = re.sub('-', '_', name.lower())
+        if name in labels:
+            name = 'class(' + name + ')'
+        else:
+            name = name + '(' + ')'
+        # lhs = name + '(' + ','.join(VARIABLE_BASE_NAME + ('_' if i < 0 else '') + str(abs(i)) for i in indices) + ')'
+        lhs = name
         rhs = _parse_clause(rest)
         results.append(lhs + IMPLICATION_SYMBOL + rhs)
 
@@ -45,7 +60,8 @@ def _parse_clause(rest: str, rhs: str = '', aggregation: str = AND_SYMBOL) -> st
                                     str(abs(int(index)) + i) + ' = ' + value.lower()) for i, value in enumerate(clause))
         elif negation is not None:
             new_clause = re.sub(NOT_IDENTIFIER, NOT_SYMBOL, clause)
-            new_clause = re.sub('-', '_', new_clause)
+            new_clause = re.sub('-', '_', new_clause.lower())
+            new_clause = re.sub('\)', '())', new_clause)
             rhs += new_clause
         elif n is not None:
             new_clause = clause[n.regs[0][1]:]
@@ -55,7 +71,7 @@ def _parse_clause(rest: str, rhs: str = '', aggregation: str = AND_SYMBOL) -> st
             n = clause[n.regs[0][0]:n.regs[0][1] - 2]
             rhs += n + LESS_SYMBOL + '(' + inner_clause + ')'
         else:
-            rhs += re.sub('-', '_', clause)
+            rhs += re.sub('-', '_', clause.lower()) + '()'
         if j < len(rest.split(',')) - 1:
             rhs += AND_SYMBOL
     return rhs
