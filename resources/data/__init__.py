@@ -52,6 +52,10 @@ def get_feature_mapping(variable_indices: list[int] = get_indices()) -> dict[str
     return {'X' + ('_' if j < 0 else '') + str(abs(j)): i for i, j in enumerate(variable_indices)}
 
 
+def get_extended_feature_mapping(features: list[str], variable_indices: list[int] = get_indices()) -> dict[str: int]:
+    return {'X' + ('_' if j < 0 else '') + str(abs(j)) + f: k + i * len(features) for i, j in enumerate(variable_indices) for k, f in enumerate(features)}
+
+
 def get_vocabulary(data: pd.DataFrame) -> list[str]:
     result = set()
     for _, row in data.iterrows():

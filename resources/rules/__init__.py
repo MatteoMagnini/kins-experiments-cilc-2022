@@ -54,6 +54,29 @@ def get_datalog_rules(rules: Iterable[str], class_labels: set[str] = ('ei', 'ie'
     return results
 
 
+def get_binary_datalog_rules(rules: Iterable[str]) -> Iterable[str]:
+    results = []
+    term_regex = '[a-z]+'
+    variable_regex = VARIABLE_BASE_NAME + '[_]?[0-9]+'
+    regex = variable_regex + '[ ]?=[ ]?' + term_regex
+    for rule in rules:
+        tmp_rule = rule
+        partial_result = ''
+        while re.search(regex, tmp_rule) is not None:
+            match = re.search(regex, tmp_rule)
+            start, end = match.regs[0]
+            matched_string = tmp_rule[start:end]
+            ante = tmp_rule[:start]
+            medio = matched_string[:re.search(variable_regex, matched_string).regs[0][1]] + \
+                    matched_string[re.search(term_regex, matched_string).regs[0][0]:] + ' = 1'
+            partial_result += ante + medio
+            tmp_rule = tmp_rule[end:]
+        partial_result += tmp_rule
+        results.append(partial_result)
+    return results
+
+
+# TODO: to be removed
 def get_rules_with_explicit_variables(rules: Iterable[str]) -> Iterable[str]:
     result = []
     regex = r'X[_]?[0-9]* = '
@@ -75,6 +98,7 @@ def get_rules_with_explicit_variables(rules: Iterable[str]) -> Iterable[str]:
     return result
 
 
+# TODO: to be removed
 def get_rules_with_int(rules: Iterable[str], mapping: dict[str: int]) -> Iterable[str]:
     result = []
     for rule in rules:
@@ -130,7 +154,7 @@ def _next_index(index: str, offset: int) -> int:
 def _previous_holes(l: list[int], i: int) -> int:
     j = 0
     for k in list(range(0, i)):
-        if l[k] + 1 != l[k+1]:
+        if l[k] + 1 != l[k + 1]:
             j += 1
     return j
 

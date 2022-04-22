@@ -1,11 +1,13 @@
 import unittest
-from resources.rules import get_rules, get_datalog_rules, get_rules_with_explicit_variables, get_rules_with_int
+from resources.rules import get_rules, get_datalog_rules, get_rules_with_explicit_variables, get_rules_with_int, \
+    get_binary_datalog_rules
 
 
 class TestRuleSuit(unittest.TestCase):
     rules = get_rules('kb')
     ei_rule = rules[19]
     datalog_ei_rule = get_datalog_rules([ei_rule])[0]
+    datalog_binary_ei_rule = get_binary_datalog_rules([datalog_ei_rule])[0]
     datalog_ei_rule_explicit_variable = get_rules_with_explicit_variables([datalog_ei_rule])[0]
     valuer_mapping = {'ei': 0, 'ie': 1, 'n': 2, 'a': 3, 'c': 4, 'g': 5, 't': 6, 'd': 7, 's': 8, 'r': 9}
     datalog_ei_rule_with_int = get_rules_with_int([datalog_ei_rule_explicit_variable], valuer_mapping)[0]
