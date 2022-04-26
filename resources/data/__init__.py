@@ -1,16 +1,30 @@
-import re
-from itertools import chain
-from pathlib import Path
 from typing import Iterable
+from resources.data.splice_junction import PATH as SPLICE_JUNCTION_PATH, get_indices as get_spice_junction_indices
+from resources.data.promoters import PATH as PROMOTERS_PATH, get_indices as get_promoters_indices
 import pandas as pd
+import re
 
-PATH = Path(__file__).parents[0]
+
+SPLICE_JUNCTION_INDICES = get_spice_junction_indices()
+PROMOTERS_INDICES = get_promoters_indices()
 
 
-def get_data(filename: str) -> pd.DataFrame:
+def get_splice_junction_data(filename: str) -> pd.DataFrame:
+    return _get_data(str(SPLICE_JUNCTION_PATH / filename) + '.txt')
+
+
+def get_promoters_data(filename: str) -> pd.DataFrame:
+    return _get_data(str(PROMOTERS_PATH / filename) + '.txt')
+
+
+def data_to_int(data: pd.DataFrame, mapping: dict[str: int]) -> pd.DataFrame:
+    return data.applymap(lambda x: mapping[x] if x in mapping.keys() else x)
+
+
+def _get_data(file: str) -> pd.DataFrame:
     x = []
-    with open(str(PATH / filename) + '.txt') as file:
-        for row in file:
+    with open(file) as f:
+        for row in f:
             row = re.sub('\n', '', row)
             label, _, features = row.split(',')
             features = list(f for f in features.lower())
@@ -40,26 +54,30 @@ def _get_values(mapping: dict[str: set[str]]) -> Iterable[str]:
     return result
 
 
-def data_to_int(data: pd.DataFrame, mapping: dict[str: int]) -> pd.DataFrame:
-    return data.applymap(lambda x: mapping[x] if x in mapping.keys() else x)
+def get_splice_junction_feature_mapping(variable_indices: list[int] = SPLICE_JUNCTION_INDICES) -> dict[str: int]:
+    return _get_feature_mapping(variable_indices)
 
 
-def get_indices() -> list[int]:
-    return list(range(-30, 0)) + list(range(1, 31))
+def get_splice_junction_extended_feature_mapping(features: list[str],
+                                                 variable_indices: list[int] = SPLICE_JUNCTION_INDICES
+                                                 ) -> dict[str: int]:
+    return _get_extended_feature_mapping(features, variable_indices)
 
 
-def get_feature_mapping(variable_indices: list[int] = get_indices()) -> dict[str: int]:
+def get_promoter_feature_mapping(variable_indices: list[int] = PROMOTERS_INDICES) -> dict[str: int]:
+    return _get_feature_mapping(variable_indices)
+
+
+def get_promoter_extended_feature_mapping(features: list[str],
+                                          variable_indices: list[int] = PROMOTERS_INDICES
+                                          ) -> dict[str: int]:
+    return _get_extended_feature_mapping(features, variable_indices)
+
+
+def _get_feature_mapping(variable_indices: list[int]) -> dict[str: int]:
     return {'X' + ('_' if j < 0 else '') + str(abs(j)): i for i, j in enumerate(variable_indices)}
 
 
-def get_extended_feature_mapping(features: list[str], variable_indices: list[int] = get_indices()) -> dict[str: int]:
-    return {'X' + ('_' if j < 0 else '') + str(abs(j)) + f: k + i * len(features) for i, j in enumerate(variable_indices) for k, f in enumerate(features)}
-
-
-def get_vocabulary(data: pd.DataFrame) -> list[str]:
-    result = set()
-    for _, row in data.iterrows():
-        for value in row:
-            result.add(value)
-    return sorted(result)
-
+def _get_extended_feature_mapping(features: list[str], variable_indices: list[int]) -> dict[str: int]:
+    return {'X' + ('_' if j < 0 else '') + str(abs(j)) + f: k + i * len(features)
+            for i, j in enumerate(variable_indices) for k, f in enumerate(features)}
