@@ -5,6 +5,7 @@ import pandas as pd
 from psyki.ski import Injector, Formula
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from tensorflow.python.framework.random_seed import set_seed
+from tensorflow.python.keras import Model
 from tensorflow.python.keras.callbacks import EarlyStopping
 from tensorflow.keras.metrics import sparse_categorical_crossentropy, sparse_categorical_accuracy
 from tensorflow.keras.models import clone_model
@@ -112,4 +113,44 @@ def k_fold_cross_validation(data: pd.DataFrame,
 
     return pd.DataFrame({'loss': losses, 'acc': accuracies})
 
+
+def leave_one_out(data: pd.DataFrame,
+                  injector: Injector,
+                  knowledge: list[Formula],
+                  use_knowledge: bool = True,
+                  seed: int = 0,
+                  epochs: int = 100,
+                  batch_size: int = 32,
+                  stop: EarlyStopping = None
+                  ) -> pd.DataFrame:
+    losses = []
+    accuracies = []
+    set_seed(seed)
+
+    for i in range(0, data.shape[0]):
+        j = i+1 if i < data.shape[0] else i-1
+
+        indices = sorted(set(range(0, i)).union(set(range(i + 1, data.shape[0]))))
+        train, test = data.iloc[indices, :], data.iloc[i:j, :] if i < j else data.iloc[i, :]
+        train = train.sample(frac=1, random_state=seed+i)
+        train_x, train_y = train.iloc[:, :-1], train.iloc[:, -1:]
+        test_x, test_y = test.iloc[:, :-1], test.iloc[:, -1:]
+
+        if use_knowledge:
+            predictor = injector.inject(knowledge)
+        else:
+            predictor = clone_model(injector.predictor)
+            predictor.set_weights(injector.predictor.get_weights())
+        predictor.compile('adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+        predictor.fit(train_x, train_y, epochs=epochs, batch_size=batch_size, verbose=0, callbacks=stop)
+
+        loss, acc = predictor.evaluate(test_x, test_y, verbose=0)
+        losses.append(loss)
+        accuracies.append(acc)
+
+        print(i + 1)
+        print(sum(accuracies)/len(accuracies))
+
+    return pd.DataFrame({'loss': [np.mean(losses)], 'acc': [np.mean(accuracies)]})
 

@@ -20,6 +20,6 @@ IE-stop ::- @3 'TGA'.
 
 pyramidine-rich :- 6 of (@-15 'YYYYYYYYYY').
 
-EI :- not(EI-stop), @-3 'MAGGTRAGT'.
+EI :- @-3 'MAGGTRAGT'.
 
 IE :- pyramidine-rich, @-3 'YAGG', not(IE-stop).

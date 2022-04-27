@@ -79,5 +79,6 @@ def _get_feature_mapping(variable_indices: list[int]) -> dict[str: int]:
 
 
 def _get_extended_feature_mapping(features: list[str], variable_indices: list[int]) -> dict[str: int]:
-    return {'X' + ('_' if j < 0 else '') + str(abs(j)) + f: k + i * len(features)
+    result = {'X' + ('_' if j < 0 else '') + str(abs(j)) + f: k + i * len(features)
             for i, j in enumerate(variable_indices) for k, f in enumerate(features)}
+    return result
