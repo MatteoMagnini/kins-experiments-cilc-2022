@@ -2,8 +2,8 @@
 .vscode/
 .DS_Store
 dummy*.py
-.csv
-.pdf
+*.csv
+*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
