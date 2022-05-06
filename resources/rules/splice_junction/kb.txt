@@ -18,8 +18,8 @@ IE-stop ::- @3 'TAA'.
 IE-stop ::- @3 'TAG'.
 IE-stop ::- @3 'TGA'.
 
-pyramidine-rich :- 6 of (@-15 'YYYYYYYYYY').
+pyramidine-rich ::- 6 of (@-15 'YYYYYYYYYY').
 
-EI :- @-3 'MAGGTRAGT'.
+EI ::- @-3 'MAGGTRAGT', not(EI-stop).
 
-IE :- pyramidine-rich, @-3 'YAGG', not(IE-stop).
+IE ::- pyramidine-rich, @-3 'YAGG', not(IE-stop).

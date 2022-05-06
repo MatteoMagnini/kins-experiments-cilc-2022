@@ -1,7 +1,9 @@
 .idea/
 .vscode/
 .DS_Store
-dummy.py
+dummy*.py
+.csv
+.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

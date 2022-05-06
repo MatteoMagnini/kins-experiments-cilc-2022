@@ -1,5 +1,6 @@
 import unittest
-from psyki.logic.datalog.grammar.adapters import Antlr4
+
+from psyki.logic.datalog.grammar.adapters.antlr4 import get_formula_from_string
 from psyki.ski.injectors import NetworkComposer
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense
@@ -38,8 +39,12 @@ class TestCoverage(unittest.TestCase):
 
     ie = data.loc[data[240] == CLASS_MAPPING['ie']]
     ei = data.loc[data[240] == CLASS_MAPPING['ei']]
+    n = data.loc[data[240] == CLASS_MAPPING['n']]
+    not_ie = data.loc[data[240] != CLASS_MAPPING['ie']]
+    not_ei = data.loc[data[240] != CLASS_MAPPING['ei']]
+    not_n = data.loc[data[240] != CLASS_MAPPING['n']]
 
-    rules = [Antlr4().get_formula_from_string(rule) for rule in rules]
+    rules = [get_formula_from_string(rule) for rule in rules]
 
     inputs = Input((240,))
     x = Dense(32, activation='relu')(inputs)
@@ -53,9 +58,38 @@ class TestCoverage(unittest.TestCase):
 
         predict_ie = Model(predictor.inputs, predictor.layers[-3].output)
         ie_true_positive = predict_ie.predict(self.ie.iloc[:, :-1])
-        print('IE true positive: ' + str(sum(ie_true_positive)[0]/self.ie.shape[0]*100) + '% (' + str(self.ie.shape[0]) + ' total positive)')
+        ie_false_positive = predict_ie.predict(self.not_ie.iloc[:, :-1])
+        print('IE true positive: ' + str(sum(ie_true_positive)[0] / self.ie.shape[0] * 100) + '% (' + str(sum(ie_true_positive)[0]) + ' out of '+ str(self.ie.shape[0]) + ' total positive)')
+        print('IE false positive: ' + str(sum(ie_false_positive)[0] / self.not_ie.shape[0] * 100) + '% (' + str(sum(ie_false_positive)[0]) + ' out of ' + str(self.not_ie.shape[0]) + ' total negative)')
+
+        ie_ei = predict_ie.predict(self.ei.iloc[:, :-1])
+        ie_n = predict_ie.predict(self.n.iloc[:, :-1])
+        print('IE EI false positive: ' + str(sum(ie_ei)[0] / self.ei.shape[0] * 100) + '% (' + str(
+            sum(ie_ei)[0]) + ' out of ' + str(self.ei.shape[0]) + ' total negative)')
+        print('IE N false positive: ' + str(sum(ie_n)[0] / self.n.shape[0] * 100) + '% (' + str(
+            sum(ie_n)[0]) + ' out of ' + str(self.n.shape[0]) + ' total negative)')
 
         predict_ei = Model(predictor.inputs, predictor.layers[-4].output)
         ei_true_positive = predict_ei.predict(self.ei.iloc[:, :-1])
-        print('EI true positive: ' + str(sum(ei_true_positive)[0]/self.ei.shape[0]*100) + '% (' + str(self.ei.shape[0]) + ' total positive)')
+        ei_false_positive = predict_ei.predict(self.not_ei.iloc[:, :-1])
+        print('EI true positive: ' + str(sum(ei_true_positive)[0]/self.ei.shape[0]*100) + '% (' + str(sum(ei_true_positive)[0]) + ' out of ' + str(self.ei.shape[0]) + ' total positive)')
+        print('EI false positive: ' + str(sum(ei_false_positive)[0]/self.not_ei.shape[0]*100) + '% (' + str(sum(ei_false_positive)[0]) + ' out of ' + str(self.not_ei.shape[0]) + ' total negative)')
 
+        n_true_positive = (predict_ie.predict(self.n.iloc[:, :-1]).astype(int) | predict_ei.predict(self.n.iloc[:, :-1]).astype(int))
+        n_false_positive = (predict_ie.predict(self.not_n.iloc[:, :-1]).astype(int) | predict_ei.predict(self.not_n.iloc[:, :-1]).astype(int))
+        print('N true positive: ' + str((1 - sum(n_true_positive)[0] / self.n.shape[0]) * 100) + '% (' + str(n_true_positive.shape[0] - sum(n_true_positive)[0]) + ' out of ' + str(self.n.shape[0]) + ' total positive)')
+        print('N false positive: ' + str((1 - sum(n_false_positive)[0] / self.not_n.shape[0]) * 100) + '% (' + str(n_false_positive.shape[0] - sum(n_false_positive)[0]) + ' out of ' + str(self.not_n.shape[0]) + ' total positive)')
+
+        n_ie = (predict_ie.predict(self.ie.iloc[:, :-1]).astype(int) | predict_ei.predict(self.ie.iloc[:, :-1]).astype(int))
+        print('N IE false positive: ' + str((1 - sum(n_ie)[0] / self.ie.shape[0]) * 100) + '% (' + str(
+            n_ie.shape[0] - sum(n_ie)[0]) + ' out of ' + str(
+            self.ie.shape[0]) + ' total positive)')
+
+        n_ei =(predict_ie.predict(self.ei.iloc[:, :-1]).astype(int) | predict_ei.predict(self.ei.iloc[:, :-1]).astype(int))
+        print('N EI false positive: ' + str((1 - sum(n_ei)[0] / self.ei.shape[0]) * 100) + '% (' + str(
+            n_ei.shape[0] - sum(n_ei)[0]) + ' out of ' + str(
+            self.ei.shape[0]) + ' total positive)')
+
+
+if __name__ == '__main__':
+    unittest.main()

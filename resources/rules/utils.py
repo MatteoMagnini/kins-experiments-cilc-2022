@@ -14,8 +14,11 @@ OR_SYMBOL = ' ∨ '
 NOT_SYMBOL = '¬'
 LESS_EQUAL_SYMBOL = ' ≤ '
 PLUS_SYMBOL = ' + '
-IMPLICATION_SYMBOL = ' ← '
-RULE_DEFINITION_SYMBOLS = ('::-', ':-')
+STATIC_IMPLICATION_SYMBOL = ' ← '
+MUTABLE_IMPLICATION_SYMBOL = ' ⇐ '
+STATIC_RULE_SYMBOL = '::-'
+MUTABLE_RULE_SYMBOL = ':-'
+RULE_DEFINITION_SYMBOLS = (STATIC_RULE_SYMBOL, MUTABLE_RULE_SYMBOL)
 RULE_DEFINITION_SYMBOLS_REGEX = '(' + '|'.join(RULE_DEFINITION_SYMBOLS) + ')'
 
 
@@ -40,10 +43,10 @@ def explicit_variables(e: str) -> str:
     result = ''
     for key in AGGREGATE_SYMBOLS.keys():
         if key.lower() in e:
-            values = [v for v in ALPHABET if v not in AGGREGATE_SYMBOLS[key]]
+            values = [v for v in AGGREGATE_SYMBOLS[key]]
             result += AND_SYMBOL.join(
                 NOT_SYMBOL + '(' + re.sub(key.lower(), value.lower(), e) + ')' for value in values)
-    return '(' + result + ')' if result != '' else e
+    return NOT_SYMBOL + '(' + result + ')' if result != '' else e
 
 
 def replace(s: str, e: str) -> str:
