@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from resources.results import get_results
+from mlxtend.plotting import plot_confusion_matrix
+from resources.rules.splice_junction import CONFUSION_MATRIX, CLASS_LABELS
 
 
 def learning_curve(data: pd.DataFrame):
@@ -21,7 +22,7 @@ def sj_class_error_rate_standings():
         'KINS': [3.52, 7.21, 7.15],
         'DNN': [3.46, 7.27, 8.33],
         'KBANN': [4.26, 7.56, 8.47],
-        'Backprop': [5.29, 5.74, 10.75],
+        'Backpropagation': [5.29, 5.74, 10.75],
         'PEBLS': [6.86, 8.18, 7.55],
         # 'Perceptron': [3.99, 16.32, 17.41],
         'ID3': [8.84, 10.58, 13.99],
@@ -36,7 +37,7 @@ def sj_class_error_rate_standings():
     axs[0].barh(np.arange(data.shape[1]), data.iloc[0, :], color=['red'] + (data.shape[1]-1)*['#1f77b4'])
     axs[0].set_yticks(np.arange(data.shape[1]), labels=data.columns)
     axs[0].invert_yaxis()  # labels read top-to-bottom
-    axs[0].set_title('Nothing')
+    axs[0].set_title('N')
 
     axs[1].barh(np.arange(data.shape[1]), data.iloc[1, :], color=['red'] + (data.shape[1]-1)*['#1f77b4'])
     axs[1].set_yticks(np.arange(data.shape[1]), labels=data.columns)
@@ -52,9 +53,10 @@ def sj_class_error_rate_standings():
     fig.savefig('error-rate.pdf', transparent=True)
 
 
-data = get_results('sj-results-curve-500-2000')
-learning_curve(data)
+def confusion_matrix(data, class_names=[]):
+    fig, ax = plot_confusion_matrix(data, show_absolute=True, show_normed=True, colorbar=True, class_names=class_names)
+    fig.savefig('confusion-matrix.pdf', transparent=True)
 
+
+confusion_matrix(CONFUSION_MATRIX, CLASS_LABELS)
 sj_class_error_rate_standings()
-
-

@@ -1,10 +1,15 @@
 from pathlib import Path
+
+import numpy as np
+
 from resources.data.splice_junction import get_indices
 from resources.rules.utils import *
 
 PATH = Path(__file__).parents[0]
 INDEX_IDENTIFIER = '@'
 NOT_IDENTIFIER = 'not'
+CONFUSION_MATRIX = np.array([[295, 0, 473], [25, 31, 711], [3, 0, 1652]])
+CLASS_LABELS = ['IE', 'EI', 'N']
 
 
 def parse_clause(rest: str, rhs: str = '', aggregation: str = AND_SYMBOL) -> str:

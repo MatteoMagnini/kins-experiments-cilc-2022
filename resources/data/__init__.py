@@ -5,6 +5,7 @@ import pandas as pd
 import re
 
 
+BASES = ['a', 'c', 'g', 't']
 SPLICE_JUNCTION_INDICES = get_spice_junction_indices()
 PROMOTERS_INDICES = get_promoters_indices()
 
@@ -58,7 +59,7 @@ def get_splice_junction_feature_mapping(variable_indices: list[int] = SPLICE_JUN
     return _get_feature_mapping(variable_indices)
 
 
-def get_splice_junction_extended_feature_mapping(features: list[str],
+def get_splice_junction_extended_feature_mapping(features: list[str] = BASES,
                                                  variable_indices: list[int] = SPLICE_JUNCTION_INDICES
                                                  ) -> dict[str: int]:
     return _get_extended_feature_mapping(features, variable_indices)
