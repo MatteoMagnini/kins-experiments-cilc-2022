@@ -1,2 +1,2 @@
-# LINC-experiments
-LINC - Logic Injection via Network Composition experiments 
+# KINS-experiments
+KINS - Knowledge Injection via Network Structuring experiments 
