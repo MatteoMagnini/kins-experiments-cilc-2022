@@ -1,21 +1,15 @@
 from typing import Iterable
-from resources.data.splice_junction import PATH as SPLICE_JUNCTION_PATH, get_indices as get_spice_junction_indices
-from resources.data.promoters import PATH as PROMOTERS_PATH, get_indices as get_promoters_indices
+from resources.data.splice_junction import PATH as SPLICE_JUNCTION_PATH, get_indices as get_spice_junction_indices, \
+    FEATURES
 import pandas as pd
 import re
 
 
-BASES = ['a', 'c', 'g', 't']
 SPLICE_JUNCTION_INDICES = get_spice_junction_indices()
-PROMOTERS_INDICES = get_promoters_indices()
 
 
 def get_splice_junction_data(filename: str) -> pd.DataFrame:
     return _get_data(str(SPLICE_JUNCTION_PATH / filename) + '.txt')
-
-
-def get_promoters_data(filename: str) -> pd.DataFrame:
-    return _get_data(str(PROMOTERS_PATH / filename) + '.txt')
 
 
 def data_to_int(data: pd.DataFrame, mapping: dict[str: int]) -> pd.DataFrame:
@@ -59,19 +53,9 @@ def get_splice_junction_feature_mapping(variable_indices: list[int] = SPLICE_JUN
     return _get_feature_mapping(variable_indices)
 
 
-def get_splice_junction_extended_feature_mapping(features: list[str] = BASES,
+def get_splice_junction_extended_feature_mapping(features: list[str] = FEATURES,
                                                  variable_indices: list[int] = SPLICE_JUNCTION_INDICES
                                                  ) -> dict[str: int]:
-    return _get_extended_feature_mapping(features, variable_indices)
-
-
-def get_promoter_feature_mapping(variable_indices: list[int] = PROMOTERS_INDICES) -> dict[str: int]:
-    return _get_feature_mapping(variable_indices)
-
-
-def get_promoter_extended_feature_mapping(features: list[str],
-                                          variable_indices: list[int] = PROMOTERS_INDICES
-                                          ) -> dict[str: int]:
     return _get_extended_feature_mapping(features, variable_indices)
 
 

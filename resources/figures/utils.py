@@ -24,7 +24,6 @@ def sj_class_error_rate_standings():
         'KBANN': [4.26, 7.56, 8.47],
         'Backpropagation': [5.29, 5.74, 10.75],
         'PEBLS': [6.86, 8.18, 7.55],
-        # 'Perceptron': [3.99, 16.32, 17.41],
         'ID3': [8.84, 10.58, 13.99],
         'NearestNeighbour': [31.11, 11.65, 9.09],
     })

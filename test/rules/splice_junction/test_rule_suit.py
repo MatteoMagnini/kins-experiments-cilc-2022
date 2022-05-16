@@ -1,5 +1,4 @@
 import unittest
-
 from resources.rules import get_splice_junction_rules, get_binary_datalog_rules, get_splice_junction_datalog_rules
 
 
@@ -7,16 +6,10 @@ class TestRuleSuit(unittest.TestCase):
     rules = get_splice_junction_rules('kb')
     ei_rule = rules[19]
     m_of_n = rules[18]
-    print('Original EI rule :', ei_rule)
     datalog_ei_rule = get_splice_junction_datalog_rules([ei_rule])[0]
-    print('Datalog ei_rule rule :', datalog_ei_rule)
     datalog_binary_ei_rule = get_binary_datalog_rules([datalog_ei_rule])[0]
-    print('Final Datalog ei_rule rule :', datalog_binary_ei_rule)
-    print('\nOriginal pyramidine-rich rule :', m_of_n)
     datalog_m_of_n_rule = get_splice_junction_datalog_rules([m_of_n])[0]
-    print('Datalog pyramidine-rich_rule rule :', datalog_m_of_n_rule)
     datalog_binary_m_of_n_rule = get_binary_datalog_rules([datalog_m_of_n_rule])[0]
-    print('Final Datalog pyramidine-rich_rule rule :', datalog_binary_m_of_n_rule)
 
     def test_get_datalog_rules(self):
         expected_rule = 'class(ei) ⇐ ¬(¬(X_3 = a) ∧ ¬(X_3 = c)) ∧ X_2 = a ∧ X_1 = g ∧ X1 = g ∧ X2 = t ∧ ¬(¬(X3 = a) ∧ '\

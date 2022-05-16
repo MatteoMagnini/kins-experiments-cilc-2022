@@ -1,22 +1,16 @@
 import re
 from pathlib import Path
 from typing import Iterable, Callable
-from resources.rules.utils import AGGREGATE_SYMBOLS, RULE_DEFINITION_SYMBOLS_REGEX, STATIC_IMPLICATION_SYMBOL, \
+from resources.rules.utils import RULE_DEFINITION_SYMBOLS_REGEX, STATIC_IMPLICATION_SYMBOL, \
     STATIC_RULE_SYMBOL, MUTABLE_IMPLICATION_SYMBOL
 from resources.rules.splice_junction import PATH as SPLICE_JUNCTION_PATH, parse_clause as parse_splice_junction_clause
-from resources.rules.promoters import PATH as PROMOTERS_PATH, parse_clause as parse_promoters_clause
-from resources.rules.utils import AGGREGATE_SYMBOLS, AGGREGATE_DATA_SYMBOLS, ALPHABET, VARIABLE_BASE_NAME, AND_SYMBOL, \
-    OR_SYMBOL, NOT_SYMBOL
+from resources.rules.utils import VARIABLE_BASE_NAME, AND_SYMBOL, OR_SYMBOL
 
 PATH = Path(__file__).parents[0]
 
 
 def get_splice_junction_rules(filename: str) -> list[str]:
     return get_rules(str(SPLICE_JUNCTION_PATH / filename) + '.txt')
-
-
-def get_promoters_rules(filename: str) -> list[str]:
-    return get_rules(str(PROMOTERS_PATH / filename) + '.txt')
 
 
 def get_rules(file: str) -> list[str]:
@@ -53,10 +47,6 @@ def get_binary_datalog_rules(rules: Iterable[str]) -> Iterable[str]:
 
 def get_splice_junction_datalog_rules(rules: Iterable[str]) -> Iterable[str]:
     return get_datalog_rules(rules, {'ei', 'ie', 'n'}, parse_splice_junction_clause)
-
-
-def get_promoters_datalog_rules(rules: Iterable[str]) -> Iterable[str]:
-    return get_datalog_rules(rules, {'conformation', 'contact', 'promoter'}, parse_promoters_clause)
 
 
 def get_datalog_rules(rules: Iterable[str], class_labels: set[str], parse_clause_f: Callable) -> Iterable[str]:

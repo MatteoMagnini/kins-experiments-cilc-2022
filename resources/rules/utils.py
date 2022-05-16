@@ -1,13 +1,6 @@
 import re
+from resources.data.splice_junction import AGGREGATE_FEATURE_MAPPING
 
-AGGREGATE_SYMBOLS = {'Y': ('C', 'T'),
-                     'M': ('A', 'C'),
-                     'R': ('A', 'G')}
-AGGREGATE_DATA_SYMBOLS = {'A': ('A', 'D', 'N', 'R'),
-                          'C': ('C', 'N', 'S'),
-                          'G': ('G', 'D', 'N', 'S', 'R'),
-                          'T': ('T', 'D', 'N')}
-ALPHABET = ('A', 'C', 'G', 'T')
 VARIABLE_BASE_NAME = 'X'
 AND_SYMBOL = ' ∧ '
 OR_SYMBOL = ' ∨ '
@@ -41,14 +34,15 @@ def previous_holes(l: list[int], i: int) -> int:
 
 def explicit_variables(e: str) -> str:
     result = ''
-    for key in AGGREGATE_SYMBOLS.keys():
+    for key in AGGREGATE_FEATURE_MAPPING.keys():
         if key.lower() in e:
-            values = [v for v in AGGREGATE_SYMBOLS[key]]
-            result += AND_SYMBOL.join(
-                NOT_SYMBOL + '(' + re.sub(key.lower(), value.lower(), e) + ')' for value in values)
+            values = [v for v in AGGREGATE_FEATURE_MAPPING[key]]
+            if len(values) > 1:
+                result += AND_SYMBOL.join(
+                    NOT_SYMBOL + '(' + re.sub(key.lower(), value.lower(), e) + ')' for value in values)
     return NOT_SYMBOL + '(' + result + ')' if result != '' else e
 
 
 def replace(s: str, e: str) -> str:
-    values = [v for v in AGGREGATE_DATA_SYMBOLS[s]]
+    values = [v for v in AGGREGATE_FEATURE_MAPPING[s]]
     return '(' + OR_SYMBOL.join('(' + re.sub(s.lower(), value.lower(), e) + ')' for value in values) + ')'

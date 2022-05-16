@@ -7,7 +7,7 @@ import distutils.cmd
 from tensorflow.python.framework.random_seed import set_seed
 from resources.data import get_splice_junction_data, data_to_int, get_binary_data, \
     get_splice_junction_extended_feature_mapping
-from resources.data.splice_junction import CLASS_MAPPING, FEATURE_MAPPING
+from resources.data.splice_junction import CLASS_MAPPING, AGGREGATE_FEATURE_MAPPING
 from resources.execution.utils import k_fold_cross_validation, create_fully_connected_nn_with_dropout, split
 from resources.rules import get_splice_junction_rules, get_splice_junction_datalog_rules, get_binary_datalog_rules
 
@@ -93,7 +93,7 @@ class RunKINS(distutils.cmd.Command):
         # This means that for feature i_th we have 4 new features, one for each base.
         data = get_splice_junction_data('data')
         y = data_to_int(data.iloc[:, -1:], CLASS_MAPPING)
-        x = get_binary_data(data.iloc[:, :-1], FEATURE_MAPPING)
+        x = get_binary_data(data.iloc[:, :-1], AGGREGATE_FEATURE_MAPPING)
         y.columns = [x.shape[1]]
         data = x.join(y)
         # Loading rules and conversion in Datalog form
